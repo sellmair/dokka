@@ -16,4 +16,15 @@ fun Project.isAndroidProject() = try {
     false
 }
 
+fun Project.isMultiplatformProject() = try {
+    project.extensions.getByType(KotlinMultiplatformExtension::class.java)
+    true
+} catch(e: UnknownDomainObjectException) {
+    false
+} catch (e: NoClassDefFoundError){
+    false
+} catch(e: ClassNotFoundException) {
+    false
+}
+
 fun KotlinTarget.isAndroidTarget() = this.platformType == KotlinPlatformType.androidJvm

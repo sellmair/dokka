@@ -21,7 +21,7 @@ open class HtmlRenderer(
 
     private val sourceSetDependencyMap = with(context.sourceSetCache) {
         allSourceSets.map { sourceSet ->
-            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetName ) }
+            sourceSet to allSourceSets.filter { sourceSet.dependentSourceSets.contains(it.sourceSetID ) }
         }.toMap()
     }
 
@@ -96,7 +96,7 @@ open class HtmlRenderer(
                 }.map {
                     it to createHTML(prettyPrint = false).div(classes = "content $additionalClasses") {
                         if (counter++ == 0) attributes["data-active"] = ""
-                        attributes["data-togglable"] = it.sourceSetName
+                        attributes["data-togglable"] = it.sourceSetID
                         unsafe {
                             +html
                         }
@@ -109,7 +109,7 @@ open class HtmlRenderer(
                     contents.forEachIndexed { index, pair ->
                         button(classes = "platform-bookmark") {
                             if (index == 0) attributes["data-active"] = ""
-                            attributes["data-toggle"] = pair.first.sourceSetName
+                            attributes["data-toggle"] = pair.first.sourceSetID
                             when(
                                 pair.first.platform.key
                             ){
@@ -118,8 +118,8 @@ open class HtmlRenderer(
                             "jvm" -> classes = classes + "jvm-like"
                             "js" -> classes = classes + "js-like"
                             }
-                            attributes["data-toggle"] = pair.first.sourceSetName
-                            text(pair.first.sourceSetName)
+                            attributes["data-toggle"] = pair.first.sourceSetID
+                            text(pair.first.displayName)
                         }
                     }
                 }
@@ -283,7 +283,7 @@ open class HtmlRenderer(
                         "jvm" -> classes = classes + "jvm-like"
                         "js" -> classes = classes + "js-like"
                     }
-                    text(it.sourceSetName)
+                    text(it.displayName)
                 }
             }
         }

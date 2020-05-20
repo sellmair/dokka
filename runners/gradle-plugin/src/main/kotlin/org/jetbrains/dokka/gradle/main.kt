@@ -8,13 +8,11 @@ import java.io.File
 import java.io.InputStream
 import java.util.*
 
-internal const val CONFIGURATION_EXTENSION_NAME = "configuration"
 internal const val SOURCE_SETS_EXTENSION_NAME = "dokkaSourceSets"
 internal const val DOKKA_TASK_NAME = "dokka"
 internal const val DOKKA_COLLECTOR_TASK_NAME = "dokkaCollector"
 
 open class DokkaPlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
         loadDokkaVersion()
         val dokkaRuntimeConfiguration = addConfiguration(project)
@@ -30,7 +28,9 @@ open class DokkaPlugin : Plugin<Project> {
 
     private fun addConfiguration(project: Project) =
         project.configurations.create("dokkaRuntime").apply {
-            defaultDependencies { dependencies -> dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}")) }
+            defaultDependencies { dependencies ->
+                dependencies.add(project.dependencies.create("org.jetbrains.dokka:dokka-core:${DokkaVersion.version}"))
+            }
         }
 
     private fun addDokkaTasks(
@@ -46,9 +46,8 @@ open class DokkaPlugin : Plugin<Project> {
         }
         project.tasks.withType(taskClass) { task ->
             task.dokkaSourceSets = project.container(GradlePassConfigurationImpl::class.java)
-            task.configuration = GradlePassConfigurationImpl()
             task.dokkaRuntime = runtimeConfiguration
-            task.pluginsConfig = pluginsConfiguration
+            task.pluginsClasspathConfiguration = pluginsConfiguration
             task.outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
         }
     }
@@ -63,7 +62,6 @@ open class DokkaPlugin : Plugin<Project> {
             project.tasks.create(DOKKA_COLLECTOR_TASK_NAME, taskClass)
         }
         project.tasks.withType(taskClass) { task ->
-            task.modules = emptyList()
             task.outputDirectory = File(project.buildDir, DOKKA_TASK_NAME).absolutePath
         }
     }
@@ -81,5 +79,5 @@ object DokkaVersion {
 
 object ClassloaderContainer {
     @JvmField
-    var fatJarClassLoader: ClassLoader? = null
+    var coreClassLoader: ClassLoader? = null
 }

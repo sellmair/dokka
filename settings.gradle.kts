@@ -1,7 +1,7 @@
 rootProject.name = "dokka"
 
 include("core")
-include("core:search-component")
+include("plugins:base:search-component")
 include("coreDependencies")
 include("testApi")
 include("test-tools")
@@ -32,5 +32,3 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-include("plugins:base:search-component")
-findProject(":plugins:base:search-component")?.name = "search-component"

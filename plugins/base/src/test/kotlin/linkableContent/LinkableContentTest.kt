@@ -28,7 +28,6 @@ class LinkableContentTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "js"
-                    targets = listOf("js")
                     sourceRoots = listOf("jsMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
@@ -38,7 +37,6 @@ class LinkableContentTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "jvm"
-                    targets = listOf("jvm")
                     sourceRoots = listOf("jvmMain", "commonMain", "jvmAndJsSecondCommonMain").map {
                         Paths.get("$testDataDir/$it/kotlin").toString()
                     }
@@ -69,7 +67,6 @@ class LinkableContentTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "js"
-                    targets = listOf("js")
                     sourceRoots = listOf("$testDataDir/jsMain/kotlin")
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
@@ -83,7 +80,6 @@ class LinkableContentTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "jvm"
-                    targets = listOf("jvm")
                     sourceRoots = listOf("$testDataDir/jvmMain/kotlin")
                     sourceLinks = listOf(
                         SourceLinkDefinitionImpl(
@@ -134,7 +130,6 @@ class LinkableContentTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "js"
-                    targets = listOf("js")
                     sourceRoots = listOf("$testDataDir/jsMain/kotlin")
                     sourceSetName = "js"
                     samples = listOf("$testDataDir/jsMain/resources/Samples.kt")
@@ -142,7 +137,6 @@ class LinkableContentTest : AbstractCoreTest() {
                 pass {
                     moduleName = "example"
                     analysisPlatform = "jvm"
-                    targets = listOf("jvm")
                     sourceRoots = listOf("$testDataDir/jvmMain/kotlin")
                     sourceSetName = "jvm"
                     samples = listOf("$testDataDir/jvmMain/resources/Samples.kt")
