@@ -46,7 +46,6 @@ data class ContentHeader(
     override val extra: PropertyContainer<ContentNode> = PropertyContainer.empty()
 ) : ContentComposite {
     constructor(level: Int, c: ContentComposite) : this(c.children, level, c.dci, c.sourceSets, c.style, c.extra)
-
     override fun withNewExtras(newExtras: PropertyContainer<ContentNode>): ContentHeader = copy(extra = newExtras)
 }
 
