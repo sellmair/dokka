@@ -1,5 +1,6 @@
 package org.jetbrains.dokka
 
+import com.google.gson.Gson
 import kotlinx.cli.*
 import org.jetbrains.dokka.DokkaConfiguration.ExternalDocumentationLink
 import org.jetbrains.dokka.utilities.DokkaConsoleLogger
@@ -14,12 +15,15 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
 
     val parser = ArgParser("globalArguments", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
-    override val outputDir by parser.option(ArgType.String, description = "Output directory path").required()
+    val json: String? by parser.argument(ArgType.String, description = "Json file name").optional()
+
+    override val outputDir by parser.option(ArgType.String, description = "Output directory path")
+        .default("./dokka")
 
     override val format by parser.option(
         ArgType.String,
-        description = "Output format (text, html, gfm, jekyll, kotlin-website)"
-    ).required()
+        description = "Output format (html, gfm, jekyll)"
+    ).default("html")
 
     override val generateIndexPages by parser.option(ArgType.Boolean, description = "Generate index pages")
         .default(false)
@@ -45,12 +49,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     override val pluginsClasspath by parser.option(
         ArgTypeFile,
         description = "List of jars with dokka plugins (allows many paths separated by the semicolon `;`)"
-    ).delimiter(";").also {
-        Paths.get("./dokka-base.jar").toAbsolutePath().normalize().run {
-            if (Files.exists(this)) (it.value as MutableList<File>).add(this.toFile())
-            else throw FileNotFoundException("Dokka base plugin is not found! Make sure you placed 'dokka-base.jar' containing base plugin along the cli jar file")
-        }
-    }
+    ).delimiter(";")
 
     val globalPackageOptions by parser.option(
         ArgType.String,
@@ -87,7 +86,8 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
         globalSrcLink.forEach {
             if (it.isNotEmpty() && it.contains("="))
                 passesConfigurations.all { pass ->
-                    pass.sourceLinks.cast<MutableList<SourceLinkDefinitionImpl>>().add(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
+                    pass.sourceLinks.cast<MutableList<SourceLinkDefinitionImpl>>()
+                        .add(SourceLinkDefinitionImpl.parseSourceLinkDefinition(it))
                 }
             else {
                 DokkaConsoleLogger.warn("Invalid -srcLink syntax. Expected: <path>=<url>[#lineSuffix]. No source links will be generated.")
@@ -100,7 +100,7 @@ class GlobalArguments(args: Array<String>) : DokkaConfiguration {
     }
 }
 
-fun passArguments(args: Array<String>) : DokkaConfiguration.PassConfiguration {
+fun passArguments(args: Array<String>): DokkaConfiguration.PassConfiguration {
 
     val parser = ArgParser("passConfiguration", prefixStyle = ArgParser.OptionPrefixStyle.JVM)
 
@@ -232,6 +232,7 @@ fun passArguments(args: Array<String>) : DokkaConfiguration.PassConfiguration {
         override val sourceSetName = sourceSetName
         override val classpath = classpath
         override val sourceRoots = sourceRoots.map { SourceRootImpl(it.toAbsolutePath()) }
+        override val dependentSourceSets: List<String> = dependentSourceSets
         override val dependentSourceRoots = dependentSourceRoots.map { SourceRootImpl(it.toAbsolutePath()) }
         override val samples = samples.map { it.toAbsolutePath() }
         override val includes = includes.map { it.toAbsolutePath() }
@@ -343,7 +344,13 @@ fun parseLinks(links: List<String>): List<ExternalDocumentationLink> {
 }
 
 fun main(args: Array<String>) {
-    val configuration = GlobalArguments(args)
-    val generator = DokkaGenerator(configuration, DokkaConsoleLogger)
-    generator.generate()
+    val globalArguments = GlobalArguments(args)
+    val configuration = if (globalArguments.json != null)
+        Gson().fromJson(
+            Paths.get(globalArguments.json).toFile().readText(),
+            DokkaConfigurationImpl::class.java
+        )
+    else
+        globalArguments
+    DokkaGenerator(configuration, DokkaConsoleLogger).generate()
 }
